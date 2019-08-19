@@ -13,7 +13,7 @@ module reorder_logic_selector
    // Outputs
    ack_o,
    // Inputs
-   valid_i, next_i, status_i
+   ready_i, valid_i, next_i, status_i
    );
 
   /* clog2 function */
@@ -30,6 +30,7 @@ module reorder_logic_selector
   localparam  SEL_WIDTH = $clog2(NUM_QUEUES);
 
   /* PORTS: request control */
+  input                     ready_i;    //..ready to receive another entry
   input                     valid_i;    //..valid expected value
   input   [SEL_WIDTH-1:0]   next_i;     //..next expected value
 
@@ -49,7 +50,7 @@ module reorder_logic_selector
   generate
     for(I=0; I<NUM_QUEUES; I=I+1) begin:  reorder_comb_logic
       assign select_int[I] = (next_i == I) ? 1'b1 : 1'b0;               //..demux logic
-      assign ack_o[I] = (valid_i) ? select_int[I] & status_i[I] : 1'b0; //..acknowledge bit per queue
+      assign ack_o[I] = (ready_i & valid_i) ? select_int[I] & status_i[I] : 1'b0; //..acknowledge bit per queue
     end
   endgenerate
 
