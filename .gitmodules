@@ -1,3 +1,4 @@
 [submodule "rtl/status_value_vector"]
 	path = rtl/status_value_vector
 	url = git@github.com:m4j0rt0m/status_value_vector.git
+	branch = ip-src
