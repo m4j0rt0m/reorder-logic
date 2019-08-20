@@ -9,12 +9,11 @@ module reorder_logic_top
 # (
     parameter NUM_QUEUES  = 4,
     parameter DEPTH       = 64,
-    parameter WIDTH       = 1,
     parameter BREAKPOINT  = 1'b1
   )
 (/*AUTOARG*/
    // Outputs
-   full_o, commit_id_valid_o, commit_id_value_o,
+   full_o, commit_id_valid_o, commit_id_value_o, commit_id_full_o,
    // Inputs
    clk_i, arsn_i, trace_id_push_i, trace_id_value_i, trace_push_i,
    trace_sel_i, trace_break_i, trace_update_i, queues_status_push_i,
@@ -57,6 +56,7 @@ module reorder_logic_top
   input                     commit_id_pull_i;     //..pull the oldest entry from committed IDs queue
   output                    commit_id_valid_o;    //..valid entry in committed IDs queue
   output  [ID_WIDTH-1:0]    commit_id_value_o;    //..ID value from committed IDs queue
+  output                    commit_id_full_o;     //..committed IDs queue is full
 
   /* regs and wires */
   reg                       trace_id_pull;        //..pull the oldest ID from mapped IDs queue
@@ -76,7 +76,6 @@ module reorder_logic_top
   wire    [NUM_QUEUES-1:0]  queues_status_full;   //..status queues full
   reg                       commit_id_push;       //..push a new entry into committed IDs queue
   reg     [ID_WIDTH-1:0]    commit_id_value;      //..new value pushed into committed IDs queue
-  wire                      commit_id_full;       //..committed IDs queue is full
 
   /* genvars and integers */
   genvar I;
@@ -175,7 +174,7 @@ module reorder_logic_top
         .NUM_QUEUES (NUM_QUEUES)
       )
     trace_queues_selector_logic (
-        .ready_i  (~commit_id_full), //..ready to commit another entry
+        .ready_i  (~commit_id_full_o), //..ready to commit another entry
         .valid_i  (trace_id_valid & trace_break_valid & trace_selector_valid), //..valid expected value
         .next_i   (trace_selector_value), //..next expected value
         .status_i (queues_status_valid & queues_status_value), //..status value from queues
@@ -226,7 +225,7 @@ module reorder_logic_top
         .value_i      (commit_id_value),
         .value_o      (commit_id_value_o),
         .valid_o      (commit_id_valid_o),
-        .full_o       (commit_id_full),
+        .full_o       (commit_id_full_o),
 
         .set_i        (0),
         .set_value_i  (0)
