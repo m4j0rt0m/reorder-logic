@@ -8,16 +8,16 @@
 module reorder_logic_top_tb ();
 
   /* local parameters */
-  localparam  RUN_CYCLES      = 80000;               //..number of cycles per simulation
+  localparam  RUN_CYCLES      = 20000000;               //..number of cycles per simulation
   localparam  FREQ_CLK        = 50;                     //..MHz
   localparam  CLK_F           = (1000 / FREQ_CLK) / 2;  //..ns
-  localparam  NUM_QUEUES      = 4;                      //..number of queues to reorder
-  localparam  DEPTH           = 8;                      //..entries depth
+  localparam  NUM_QUEUES      = 8;                      //..number of queues to reorder
+  localparam  DEPTH           = 64;                      //..entries depth
   localparam  BREAKPOINT      = 1'b1;                   //..trace breakpoint value
   localparam  ID_WIDTH        = $clog2(DEPTH);          //..ID width
   localparam  SEL_WIDTH       = $clog2(NUM_QUEUES);     //..queue selector width
   localparam  MAX_SIM_LATENCY = 20;                     //..maximum execution latency for every queue entry
-  localparam  MAX_GEN_ENTRIES = 4;                      //..maximum number of generated entries per ID
+  localparam  MAX_GEN_ENTRIES = 8;                      //..maximum number of generated entries per ID
   localparam  MAX_DEADLOCK    = 2000;                   //..maximum of waiting cycles
 
   /* defines */
