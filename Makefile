@@ -28,7 +28,7 @@ LINT                = verilator
 LINT_FLAGS          = --lint-only --top-module $(TOP_MODULE) -Wall $(PRJ_INCLUDES)
 
 ### SIMULATION ###
-TOP_MODULE_SIM      = reorder_logic
+TOP_MODULE_SIM      = reorder_logic_top
 NAME_MODULE_SIM     = $(TOP_MODULE_SIM)_tb
 SIM                 = iverilog
 SIM_FLAGS           = -o $(OUTPUT_DIR)/$(TOP_MODULE).tb -s $(NAME_MODULE_SIM) -DSIMULATION $(PRJ_INCLUDES) -v -Wall

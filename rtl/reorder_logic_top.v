@@ -97,8 +97,8 @@ module reorder_logic_top
         .valid_o      (trace_id_valid),
         .full_o       (trace_id_full),
 
-        .set_i        (0),
-        .set_value_i  (0)
+        .set_i        (1'b0),
+        .set_value_i  ({ID_WIDTH{1'b0}})
       );
 
   /* trace-breakpoints queue */
@@ -139,8 +139,8 @@ module reorder_logic_top
         .valid_o      (trace_selector_valid),
         .full_o       (trace_selector_full),
 
-        .set_i        (0),
-        .set_value_i  (0)
+        .set_i        (1'b0),
+        .set_value_i  ({SEL_WIDTH{1'b0}})
       );
 
   /* status N queues */
@@ -162,8 +162,8 @@ module reorder_logic_top
             .valid_o      (queues_status_valid[I]),
             .full_o       (queues_status_full[I]),
 
-            .set_i        (0),
-            .set_value_i  (0)
+            .set_i        (1'b0),
+            .set_value_i  (1'b0)
           );
     end
   endgenerate
@@ -181,32 +181,40 @@ module reorder_logic_top
         .ack_o    (queues_status_pull) //..pull-acknowledge response to queues
       );
 
-  /* control */
+  /* commit push control */
   always @ (posedge clk_i, negedge arsn_i)  begin
     if(~arsn_i) begin
-      trace_id_pull   <=  1'b0;
-      trace_pull      <=  1'b0;
       commit_id_push  <=  1'b0;
       commit_id_value <=  {ID_WIDTH{1'b0}};
     end
     else  begin
       if(|queues_status_pull) begin //..there is a queue status acknowledge
         if(trace_break_value == BREAKPOINT)  begin //..breakpoint reached
-          trace_id_pull   <=  1'b1;
           commit_id_push  <=  1'b1;
           commit_id_value <=  trace_id_value;
         end
         else  begin
-          trace_id_pull   <=  1'b0;
           commit_id_push  <=  1'b0;
         end
-        trace_pull  <=  1'b1;
       end
       else  begin
-        trace_id_pull   <=  1'b0;
-        trace_pull      <=  1'b0;
         commit_id_push  <=  1'b0;
       end
+    end
+  end
+
+  /* trace pull control */
+  always @ (*) begin
+    if(|queues_status_pull) begin
+      if(trace_break_value == BREAKPOINT)
+        trace_id_pull = 1'b1;
+      else
+        trace_id_pull = 1'b0;
+      trace_pull    = 1'b1;
+    end
+    else begin
+      trace_id_pull = 1'b0;
+      trace_pull    = 1'b0;
     end
   end
 
@@ -227,8 +235,8 @@ module reorder_logic_top
         .valid_o      (commit_id_valid_o),
         .full_o       (commit_id_full_o),
 
-        .set_i        (0),
-        .set_value_i  (0)
+        .set_i        (1'b0),
+        .set_value_i  ({ID_WIDTH{1'b0}})
       );
 
   //..output full signal assignment
