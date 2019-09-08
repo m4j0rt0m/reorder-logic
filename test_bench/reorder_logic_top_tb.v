@@ -13,7 +13,7 @@ module reorder_logic_top_tb ();
   localparam  FREQ_CLK        = 50;                     //..MHz
   localparam  CLK_F           = (1000 / FREQ_CLK) / 2;  //..ns
   localparam  NUM_QUEUES      = 8;                      //..number of queues to reorder
-  localparam  DEPTH           = 64;                      //..entries depth
+  localparam  DEPTH           = 64;                     //..entries depth
   localparam  BREAKPOINT      = 1'b1;                   //..trace breakpoint value
   localparam  ID_WIDTH        = $clog2(DEPTH);          //..ID width
   localparam  SEL_WIDTH       = $clog2(NUM_QUEUES);     //..queue selector width
