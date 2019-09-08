@@ -8,6 +8,7 @@
 module reorder_logic_top_tb ();
 
   /* local parameters */
+  localparam  DEBUG_PRINT     = 0;                      //..enable display simulation messages
   localparam  RUN_CYCLES      = 20000000;               //..number of cycles per simulation
   localparam  FREQ_CLK        = 50;                     //..MHz
   localparam  CLK_F           = (1000 / FREQ_CLK) / 2;  //..ns
@@ -54,7 +55,7 @@ module reorder_logic_top_tb ();
   reg   [ID_WIDTH-1:0]    dut_val, sim_val;
 
   /* integers and genvars */
-  integer idx, jdx;
+  integer idx, jdx, sim_cnt;
   genvar I;
 
   /* simulated queue execution fsm */
@@ -122,6 +123,8 @@ module reorder_logic_top_tb ();
     dut_val               = 0;
     sim_val               = 0;
 
+    sim_cnt               = 0;
+
     $dumpfile("reorder_logic_top.vcd");
     $dumpvars(0, reorder_logic_top_tb);
     for (idx = 0; idx < NUM_QUEUES; idx = idx+1) $dumpvars(0, reorder_logic_top_tb.sim_queues_limit[idx]);
@@ -166,10 +169,14 @@ module reorder_logic_top_tb ();
       sim_gen_id = 0;
     end
     else  begin
-      $display("New instruction trace:");
+      if((sim_cnt%100)==0) begin
+        $display("Simulated intructions: %d", sim_cnt);
+      end
+      if(DEBUG_PRINT) $display("New instruction trace:");
       new_entry(sim_gen_id);
-      $display("");
+      if(DEBUG_PRINT) $display("");
       sim_gen_id = sim_gen_id + 1;
+      sim_cnt = sim_cnt + 1;
     end
   end
 
@@ -187,13 +194,13 @@ module reorder_logic_top_tb ();
       trace_break_i       = 0;
       trace_id_value_i    = new_id;
       deadlock_cnt        = 0;
-      $display("  ID: %d", new_id);
-      $display("  Micro-instr amount: %d", gen_entries_amount);
+      if(DEBUG_PRINT) $display("  ID: %d", new_id);
+      if(DEBUG_PRINT) $display("  Micro-instr amount: %d", gen_entries_amount);
       while (gen_entries_amount > gen_entries_cnt) begin
         if(~full_o) begin
           trace_push_i    = 1'b1;
           trace_sel_i     = ($urandom%(NUM_QUEUES));
-          $display("  Queue: %d", trace_sel_i);
+          if(DEBUG_PRINT) $display("  Queue: %d", trace_sel_i);
           if((gen_entries_amount - gen_entries_cnt)==1) begin
             trace_break_i = BREAKPOINT;
             trace_id_push_i = 1;
@@ -201,7 +208,7 @@ module reorder_logic_top_tb ();
           else begin
             trace_break_i = 0;
           end
-          $display("  Breakpoint: %d", trace_break_i);
+          if(DEBUG_PRINT) $display("  Breakpoint: %d", trace_break_i);
           #`CYCLES(1);
           trace_id_push_i = 1'b0;
           trace_push_i    = 1'b0;
